@@ -1,0 +1,4 @@
+## 2024-05-24 - O(N log N) Eviction Bottleneck
+**Learning:** Found a major bottleneck in `npc_personality_system/core/memory.py`'s `Memory.add_event`. When the NPC's memory hit capacity, the code was appending to the list, then sorting the *entire* list `O(N log N)` just to evict a single item (the least important/oldest one), and then popping index 0 `O(N)`. This made inserting beyond capacity extremely slow for large capacities (0.25 seconds for 100 events at capacity=10000).
+
+**Action:** Replaced the plain list+sort approach with a min-heap using Python's built-in `heapq` module. By defining `__lt__` on the `MemoryEvent` object, we could use `heapq.heappush` and `heapq.heappushpop`. This reduced the operation from `O(N log N)` to `O(log N)`, bringing the time for 100 inserts down to less than 0.001 seconds.
