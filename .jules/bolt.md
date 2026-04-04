@@ -1,0 +1,3 @@
+## $(date +%Y-%m-%d) - Replaced Naive Sorting with Min-Heap for Fixed-Capacity Buffer
+**Learning:** Using `list.sort()` inside an eviction mechanism for a fixed-capacity list like `Memory.add_event` yields O(N log N) time complexity for every insertion past capacity. By giving elements a `__lt__` method matching the eviction priority and using `heapq.heappushpop()`, we can drop eviction cost to O(log N). This makes large bursts of memory storage significantly faster.
+**Action:** When working with fixed-size priority buffers, always implement sorting operators natively and use heaps/priority queues instead of list sorting.
