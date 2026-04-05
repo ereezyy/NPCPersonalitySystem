@@ -1,0 +1,3 @@
+## 2024-05-15 - Memory Eviction Performance & Chronological Order Bug
+**Learning:** The previous implementation of memory eviction in `Memory.add_event` sorted the entire `self.events` list by importance and recency every time capacity was exceeded. Not only is this inefficient (sorting an already unsorted list), but more importantly, it breaks the chronological order of memories by resorting them entirely by importance. Finding the minimum element to drop during eviction is much cleaner and avoids completely reshuffling the list, preventing out-of-order recall bugs.
+**Action:** Always consider the side effects of sorting in place when you just need to evict the minimum element. Use `min()` and `remove()` to maintain order when necessary.

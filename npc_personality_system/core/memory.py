@@ -21,8 +21,8 @@ class Memory:
         # Sort by importance and recency if we exceed capacity, though simple eviction is fine for now
         if len(self.events) > self.capacity:
             # Drop least important, oldest
-            self.events.sort(key=lambda e: (e.importance, e.timestamp))
-            self.events.pop(0) # Remove lowest importance
+            min_event = min(self.events, key=lambda e: (e.importance, e.timestamp))
+            self.events.remove(min_event)
 
     def recall(self, tag=None):
         """Recall memories, optionally filtered by a tag."""
