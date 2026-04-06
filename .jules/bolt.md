@@ -1,0 +1,3 @@
+## 2024-05-18 - Optimize Memory Event Eviction with Min-Heap
+**Learning:** The previous implementation for memory event eviction used `list.sort()` and `list.pop(0)` when the capacity was exceeded. This resulted in an O(N log N) complexity for every insertion over capacity, where N is the capacity. This creates a severe performance bottleneck for large capacities. Utilizing a min-heap structure (`heapq.heappushpop`) reduces the complexity of removing the element with the lowest importance to O(log N) and prevents excessive overhead.
+**Action:** Always consider heap structures (`heapq` in Python) when implementing bounded collections that continuously evict elements based on priority or scoring rules, instead of relying on frequent complete array sorts.
