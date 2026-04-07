@@ -1,0 +1,3 @@
+## 2024-04-08 - Use heapq for capacity-constrained data structures
+**Learning:** Using `list.sort()` to evict items when exceeding capacity creates an O(N log N) bottleneck on every insertion after capacity is reached. The `npc_personality_system` memory eviction previously resorted the entire list to drop the least important memory.
+**Action:** Use a min-heap (`heapq`) and `heappushpop` to reduce the time complexity of bounded-capacity insertions from O(N log N) to O(log N). This makes eviction drastically faster for large collections without changing behavior. Ensure the items support the `__lt__` method.
