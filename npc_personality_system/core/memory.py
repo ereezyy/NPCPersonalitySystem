@@ -14,21 +14,35 @@ class Memory:
     def __init__(self, capacity=100):
         self.events = []
         self.capacity = capacity
+        self.tag_index = {}
 
     def add_event(self, description, importance=0.5, tags=None):
         event = MemoryEvent(description, importance, tags)
         self.events.append(event)
-        # Sort by importance and recency if we exceed capacity, though simple eviction is fine for now
+
+        if event.tags:
+            for tag in event.tags:
+                if tag not in self.tag_index:
+                    self.tag_index[tag] = []
+                self.tag_index[tag].append(event)
+
+        # Drop least important, oldest if we exceed capacity
         if len(self.events) > self.capacity:
-            # Drop least important, oldest
-            self.events.sort(key=lambda e: (e.importance, e.timestamp))
-            self.events.pop(0) # Remove lowest importance
+            min_idx = min(range(len(self.events)), key=lambda i: (self.events[i].importance, self.events[i].timestamp))
+            removed_event = self.events.pop(min_idx)
+
+            if removed_event.tags:
+                for tag in removed_event.tags:
+                    if tag in self.tag_index:
+                        self.tag_index[tag].remove(removed_event)
+                        if not self.tag_index[tag]:
+                            del self.tag_index[tag]
 
     def recall(self, tag=None):
         """Recall memories, optionally filtered by a tag."""
         if tag:
-            return [e for e in self.events if tag in e.tags]
-        return self.events
+            return list(self.tag_index.get(tag, []))
+        return list(self.events)
 
     def __repr__(self):
         return f"Memory(events_count={len(self.events)})"
