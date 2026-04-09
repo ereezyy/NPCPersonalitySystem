@@ -1,4 +1,5 @@
 import time
+import heapq
 
 class MemoryEvent:
     def __init__(self, description, importance=0.5, tags=None):
@@ -6,6 +7,11 @@ class MemoryEvent:
         self.importance = importance # 0.0 to 1.0, determines how long it's remembered
         self.tags = tags or []
         self.timestamp = time.time()
+
+    def __lt__(self, other):
+        if self.importance == other.importance:
+            return self.timestamp < other.timestamp
+        return self.importance < other.importance
 
 class Memory:
     """
@@ -18,7 +24,7 @@ class Memory:
 
     def add_event(self, description, importance=0.5, tags=None):
         event = MemoryEvent(description, importance, tags)
-        self.events.append(event)
+        heapq.heappush(self.events, event)
 
         if event.tags:
             for tag in event.tags:
@@ -28,8 +34,7 @@ class Memory:
 
         # Drop least important, oldest if we exceed capacity
         if len(self.events) > self.capacity:
-            min_idx = min(range(len(self.events)), key=lambda i: (self.events[i].importance, self.events[i].timestamp))
-            removed_event = self.events.pop(min_idx)
+            removed_event = heapq.heappop(self.events)
 
             if removed_event.tags:
                 for tag in removed_event.tags:
