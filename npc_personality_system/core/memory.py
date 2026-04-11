@@ -29,8 +29,8 @@ class Memory:
         if event.tags:
             for tag in event.tags:
                 if tag not in self.tag_index:
-                    self.tag_index[tag] = []
-                self.tag_index[tag].append(event)
+                    self.tag_index[tag] = set()
+                self.tag_index[tag].add(event)
 
         # Drop least important, oldest if we exceed capacity
         if len(self.events) > self.capacity:
