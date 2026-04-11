@@ -9,3 +9,7 @@
 ## 2024-07-20 - O(N) vs O(1) in eviction mechanisms
 **Learning:** Removing elements from a list via `.remove()` during memory eviction is O(N) and can drastically reduce performance when limits are hit frequently.
 **Action:** Use sets for indexing elements when individual removal is required and insertion order isn't strictly necessary, maintaining O(1) removal.
+
+## 2024-04-11 - [Optimize Priority Queue Updates]
+**Learning:** [In a bounded priority queue updating indexes and pushing low-priority events before popping them leads to unnecessary operations and memory thrashing.]
+**Action:** [Check if the new item is lower priority than the minimum item before modifying the queue, and use `heapq.heapreplace` instead of `heappush` and `heappop`.]

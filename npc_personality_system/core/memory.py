@@ -23,18 +23,16 @@ class Memory:
         self.tag_index = {}
 
     def add_event(self, description, importance=0.5, tags=None):
+        if self.capacity <= 0:
+            return
+
         event = MemoryEvent(description, importance, tags)
-        heapq.heappush(self.events, event)
 
-        if event.tags:
-            for tag in event.tags:
-                if tag not in self.tag_index:
-                    self.tag_index[tag] = set()
-                self.tag_index[tag].add(event)
+        if len(self.events) >= self.capacity:
+            if event < self.events[0]:
+                return # The new event is the least important, it would be immediately evicted
 
-        # Drop least important, oldest if we exceed capacity
-        if len(self.events) > self.capacity:
-            removed_event = heapq.heappop(self.events)
+            removed_event = heapq.heapreplace(self.events, event)
 
             if removed_event.tags:
                 for tag in removed_event.tags:
@@ -42,6 +40,14 @@ class Memory:
                         self.tag_index[tag].remove(removed_event)
                         if not self.tag_index[tag]:
                             del self.tag_index[tag]
+        else:
+            heapq.heappush(self.events, event)
+
+        if event.tags:
+            for tag in event.tags:
+                if tag not in self.tag_index:
+                    self.tag_index[tag] = set()
+                self.tag_index[tag].add(event)
 
     def recall(self, tag=None):
         """Recall memories, optionally filtered by a tag."""
