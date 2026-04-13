@@ -24,24 +24,34 @@ class Memory:
 
     def add_event(self, description, importance=0.5, tags=None):
         event = MemoryEvent(description, importance, tags)
-        heapq.heappush(self.events, event)
 
-        if event.tags:
-            for tag in event.tags:
-                if tag not in self.tag_index:
-                    self.tag_index[tag] = set()
-                self.tag_index[tag].add(event)
+        if len(self.events) >= self.capacity:
+            # If at capacity, use heappushpop to atomically add new and remove lowest priority.
+            # This is more efficient and avoids tag indexing if the new event is the one removed.
+            removed_event = heapq.heappushpop(self.events, event)
 
-        # Drop least important, oldest if we exceed capacity
-        if len(self.events) > self.capacity:
-            removed_event = heapq.heappop(self.events)
+            if removed_event is not event:
+                # Add the new event's tags to index
+                if event.tags:
+                    for tag in event.tags:
+                        if tag not in self.tag_index:
+                            self.tag_index[tag] = set()
+                        self.tag_index[tag].add(event)
 
-            if removed_event.tags:
-                for tag in removed_event.tags:
-                    if tag in self.tag_index:
-                        self.tag_index[tag].remove(removed_event)
-                        if not self.tag_index[tag]:
-                            del self.tag_index[tag]
+                # Remove the old event's tags from index
+                if removed_event.tags:
+                    for tag in removed_event.tags:
+                        if tag in self.tag_index:
+                            self.tag_index[tag].remove(removed_event)
+                            if not self.tag_index[tag]:
+                                del self.tag_index[tag]
+        else:
+            heapq.heappush(self.events, event)
+            if event.tags:
+                for tag in event.tags:
+                    if tag not in self.tag_index:
+                        self.tag_index[tag] = set()
+                    self.tag_index[tag].add(event)
 
     def recall(self, tag=None):
         """Recall memories, optionally filtered by a tag."""

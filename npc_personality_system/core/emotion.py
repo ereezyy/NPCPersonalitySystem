@@ -24,10 +24,13 @@ class EmotionState:
 
     def get_dominant_emotion(self):
         """Returns the emotion with the highest intensity."""
-        dominant = max(self.emotions.items(), key=lambda x: x[1])
-        if dominant[1] == 0.0:
-            return "neutral"
-        return dominant[0]
+        best = "neutral"
+        best_val = 0.0
+        for k, v in self.emotions.items():
+            if v > best_val:
+                best = k
+                best_val = v
+        return best
 
     def __repr__(self):
         return f"EmotionState(dominant='{self.get_dominant_emotion()}')"
