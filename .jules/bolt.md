@@ -13,3 +13,7 @@
 ## 2026-04-12 - Atomically replacing heap items
 **Learning:** Calling `heapq.heappush` followed by `heapq.heappop` is noticeably slower than using `heapq.heappushpop()`. Additionally, when managing a cache with `heappushpop`, we can avoid the overhead of adding and immediately removing tags/indexes if the newly pushed item is the one that gets popped right back out due to low priority.
 **Action:** Always prefer `heappushpop()` over a push-then-pop sequence when dealing with fixed-size priority queues. Use the returned value of `heappushpop()` to conditionally execute expensive operations (like updating tag indexes) only if the item is actually kept in the cache.
+
+## 2024-05-18 - Caching O(N) read-heavy operations
+**Learning:** Frequent calls to `EmotionState.get_dominant_emotion()` cause performance bottlenecks due to O(N) dictionary iteration in game loops where reads outnumber writes. Also, LBYL (Look Before You Leap) pattern `if key in dict:` is slightly slower than EAFP (Easier to Ask for Forgiveness than Permission) `try...except KeyError:` on the happy path.
+**Action:** When working on NPC stat getters or similar read-heavy functions, cache the result during state updates to achieve O(1) reads, and prefer EAFP for dictionary lookups on the happy path.

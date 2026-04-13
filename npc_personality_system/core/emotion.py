@@ -14,23 +14,37 @@ class EmotionState:
             "surprise": 0.0,
             "anticipation": 0.0
         }
+        self._dominant = "neutral"
+        self._dominant_val = 0.0
 
     def update_emotion(self, emotion_name, delta):
         """Updates the intensity of an emotion, keeping it within 0.0 and 1.0."""
-        if emotion_name in self.emotions:
-            self.emotions[emotion_name] = max(0.0, min(1.0, self.emotions[emotion_name] + delta))
-        else:
+        try:
+            curr_val = self.emotions[emotion_name]
+        except KeyError:
             raise ValueError(f"Unknown emotion: {emotion_name}")
+
+        new_val = max(0.0, min(1.0, curr_val + delta))
+        self.emotions[emotion_name] = new_val
+
+        # Cache the dominant emotion
+        if new_val > self._dominant_val:
+            self._dominant = emotion_name
+            self._dominant_val = new_val
+        elif emotion_name == self._dominant and new_val < self._dominant_val:
+            # The dominant emotion decreased, recalculate
+            best = "neutral"
+            best_val = 0.0
+            for k, v in self.emotions.items():
+                if v > best_val:
+                    best = k
+                    best_val = v
+            self._dominant = best
+            self._dominant_val = best_val
 
     def get_dominant_emotion(self):
         """Returns the emotion with the highest intensity."""
-        best = "neutral"
-        best_val = 0.0
-        for k, v in self.emotions.items():
-            if v > best_val:
-                best = k
-                best_val = v
-        return best
+        return self._dominant
 
     def __repr__(self):
         return f"EmotionState(dominant='{self.get_dominant_emotion()}')"
