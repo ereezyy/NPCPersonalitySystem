@@ -19,12 +19,23 @@ class EmotionState:
 
     def update_emotion(self, emotion_name, delta):
         """Updates the intensity of an emotion, keeping it within 0.0 and 1.0."""
+        if not delta:
+            return
+
         try:
             curr_val = self.emotions[emotion_name]
         except KeyError:
             raise ValueError(f"Unknown emotion: {emotion_name}")
 
-        new_val = max(0.0, min(1.0, curr_val + delta))
+        new_val = curr_val + delta
+        if new_val > 1.0:
+            new_val = 1.0
+        elif new_val < 0.0:
+            new_val = 0.0
+
+        if new_val == curr_val:
+            return
+
         self.emotions[emotion_name] = new_val
 
         # Cache the dominant emotion

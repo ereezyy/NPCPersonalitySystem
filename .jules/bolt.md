@@ -17,3 +17,7 @@
 ## 2024-05-18 - Caching O(N) read-heavy operations
 **Learning:** Frequent calls to `EmotionState.get_dominant_emotion()` cause performance bottlenecks due to O(N) dictionary iteration in game loops where reads outnumber writes. Also, LBYL (Look Before You Leap) pattern `if key in dict:` is slightly slower than EAFP (Easier to Ask for Forgiveness than Permission) `try...except KeyError:` on the happy path.
 **Action:** When working on NPC stat getters or similar read-heavy functions, cache the result during state updates to achieve O(1) reads, and prefer EAFP for dictionary lookups on the happy path.
+
+## 2024-05-19 - Skipping redundant dictionary updates in hot paths
+**Learning:** Functions like `EmotionState.update_emotion` are frequently called, often with a 0 delta or resulting in no change due to hitting boundary limits (e.g., 0.0 or 1.0). In such cases, unconditionally recalculating `max(min(...))` and writing back to the dictionary adds unnecessary overhead. Furthermore, Python's built-in `max` and `min` function call overhead is significant inside tight loops compared to basic `if` statements.
+**Action:** When updating states that have boundaries, replace `max/min` calls with `if` condition clamping. Additionally, use early returns if the state is not actually changing (`delta == 0` or `new_val == curr_val`) to skip the expensive dictionary writes and subsequent evaluation logic.
