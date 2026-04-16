@@ -7,9 +7,13 @@ class Relationship:
         self.affinities = {}
 
     def update_affinity(self, entity_id, delta):
-        if entity_id not in self.affinities:
-            self.affinities[entity_id] = 0.0
-        self.affinities[entity_id] = max(-1.0, min(1.0, self.affinities[entity_id] + delta))
+        val = self.affinities.get(entity_id, 0.0) + delta
+        if val > 1.0:
+            self.affinities[entity_id] = 1.0
+        elif val < -1.0:
+            self.affinities[entity_id] = -1.0
+        else:
+            self.affinities[entity_id] = val
 
     def get_affinity(self, entity_id):
         return self.affinities.get(entity_id, 0.0)
