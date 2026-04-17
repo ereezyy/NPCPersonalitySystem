@@ -21,3 +21,7 @@
 ## 2024-05-19 - Skipping redundant dictionary updates in hot paths
 **Learning:** Functions like `EmotionState.update_emotion` are frequently called, often with a 0 delta or resulting in no change due to hitting boundary limits (e.g., 0.0 or 1.0). In such cases, unconditionally recalculating `max(min(...))` and writing back to the dictionary adds unnecessary overhead. Furthermore, Python's built-in `max` and `min` function call overhead is significant inside tight loops compared to basic `if` statements.
 **Action:** When updating states that have boundaries, replace `max/min` calls with `if` condition clamping. Additionally, use early returns if the state is not actually changing (`delta == 0` or `new_val == curr_val`) to skip the expensive dictionary writes and subsequent evaluation logic.
+
+## 2026-04-17 - Bypassing Python-level `__lt__` in heapq
+**Learning:** `heapq` uses standard Python comparisons which can trigger custom `__lt__` methods on objects repeatedly during heap adjustments. This is slow in tight loops. A more performant approach is wrapping objects in a tuple structure like `(priority, tiebreaker, object)` because tuple comparison is highly optimized in C, falling back to earlier elements to resolve comparisons and completely avoiding custom object methods as long as the tiebreaker prevents equality.
+**Action:** When using `heapq` with custom objects, store them within a tuple utilizing a tiebreaker like `itertools.count()` instead of overriding the `__lt__` method on the object itself. Unpack the tuple when retrieving the object.
