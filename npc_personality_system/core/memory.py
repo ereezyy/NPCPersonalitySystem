@@ -2,6 +2,8 @@ import time
 import heapq
 
 class MemoryEvent:
+    __slots__ = ('description', 'importance', 'tags', 'timestamp')
+
     def __init__(self, description, importance=0.5, tags=None):
         self.description = description
         self.importance = importance # 0.0 to 1.0, determines how long it's remembered
@@ -9,9 +11,7 @@ class MemoryEvent:
         self.timestamp = time.time()
 
     def __lt__(self, other):
-        if self.importance == other.importance:
-            return self.timestamp < other.timestamp
-        return self.importance < other.importance
+        return self.importance < other.importance if self.importance != other.importance else self.timestamp < other.timestamp
 
 class Memory:
     """
@@ -26,25 +26,22 @@ class Memory:
         event = MemoryEvent(description, importance, tags)
 
         if len(self.events) >= self.capacity:
-            # If at capacity, use heappushpop to atomically add new and remove lowest priority.
-            # This is more efficient and avoids tag indexing if the new event is the one removed.
-            removed_event = heapq.heappushpop(self.events, event)
+            if not self.events or event.importance < self.events[0].importance:
+                return
+            removed_event = heapq.heapreplace(self.events, event)
 
-            if removed_event is not event:
-                # Add the new event's tags to index
-                if event.tags:
-                    for tag in event.tags:
-                        if tag not in self.tag_index:
-                            self.tag_index[tag] = set()
-                        self.tag_index[tag].add(event)
+            if event.tags:
+                for tag in event.tags:
+                    if tag not in self.tag_index:
+                        self.tag_index[tag] = set()
+                    self.tag_index[tag].add(event)
 
-                # Remove the old event's tags from index
-                if removed_event.tags:
-                    for tag in removed_event.tags:
-                        if tag in self.tag_index:
-                            self.tag_index[tag].remove(removed_event)
-                            if not self.tag_index[tag]:
-                                del self.tag_index[tag]
+            if removed_event.tags:
+                for tag in removed_event.tags:
+                    if tag in self.tag_index:
+                        self.tag_index[tag].remove(removed_event)
+                        if not self.tag_index[tag]:
+                            del self.tag_index[tag]
         else:
             heapq.heappush(self.events, event)
             if event.tags:
