@@ -25,3 +25,7 @@
 ## 2026-04-16 - Hot path function call and object overhead
 **Learning:** `__slots__` reduces memory usage and speeds up attribute access in Python classes, particularly useful for high-volume objects like `MemoryEvent`. Also, Python built-in function calls like `min()` and `max()` have a large overhead compared to basic `if/elif` statements. In hot paths, even standard optimizations like `heapq.heappushpop()` can be bypassed with an early return if we know the new item won't be kept in the priority queue.
 **Action:** Use `__slots__` on data container classes that are instantiated frequently. Replace `min/max` with `if-elif-else` inside heavily used loops or update paths. Short-circuit standard library operations when trivial checks (like comparing against the minimum element of a min-heap) can prevent unnecessary execution.
+
+## 2024-08-01 - Avoid Object Allocation on Rejected Paths
+**Learning:** Instantiating objects (like `MemoryEvent`) involves overhead, such as Python object creation and built-in function calls like `time.time()`. When these objects are immediately discarded without being added to the data structure (e.g., when a new item has lower importance than the lowest item in a full capacity heap), this overhead is wasted and adds up significantly in hot code paths.
+**Action:** When inserting items into capacity-limited data structures like priority queues, always check if the new item will actually be accepted *before* creating the full object. Delay instantiation until after the bounds check confirms the item will be kept.

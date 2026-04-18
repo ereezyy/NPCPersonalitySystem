@@ -23,11 +23,10 @@ class Memory:
         self.tag_index = {}
 
     def add_event(self, description, importance=0.5, tags=None):
-        event = MemoryEvent(description, importance, tags)
-
         if len(self.events) >= self.capacity:
-            if not self.events or event.importance < self.events[0].importance:
+            if not self.events or importance < self.events[0].importance:
                 return
+            event = MemoryEvent(description, importance, tags)
             removed_event = heapq.heapreplace(self.events, event)
 
             if event.tags:
@@ -43,6 +42,7 @@ class Memory:
                         if not self.tag_index[tag]:
                             del self.tag_index[tag]
         else:
+            event = MemoryEvent(description, importance, tags)
             heapq.heappush(self.events, event)
             if event.tags:
                 for tag in event.tags:
