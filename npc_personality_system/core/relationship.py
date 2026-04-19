@@ -7,13 +7,21 @@ class Relationship:
         self.affinities = {}
 
     def update_affinity(self, entity_id, delta):
-        val = self.affinities.get(entity_id, 0.0) + delta
-        if val > 1.0:
-            self.affinities[entity_id] = 1.0
-        elif val < -1.0:
-            self.affinities[entity_id] = -1.0
-        else:
-            self.affinities[entity_id] = val
+        if not delta:
+            return
+
+        curr_val = self.affinities.get(entity_id, 0.0)
+        new_val = curr_val + delta
+
+        if new_val > 1.0:
+            new_val = 1.0
+        elif new_val < -1.0:
+            new_val = -1.0
+
+        if new_val == curr_val:
+            return
+
+        self.affinities[entity_id] = new_val
 
     def get_affinity(self, entity_id):
         return self.affinities.get(entity_id, 0.0)
