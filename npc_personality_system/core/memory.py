@@ -29,6 +29,9 @@ class Memory:
         heap_item = (importance, next(self._counter), event)
 
         if len(self.events) >= self.capacity:
+            if not self.events or heap_item[0] < self.events[0][0]:
+                return
+
             # If at capacity, use heappushpop to atomically add new and remove lowest priority.
             # This is more efficient and avoids tag indexing if the new event is the one removed.
             removed_item = heapq.heappushpop(self.events, heap_item)
@@ -49,22 +52,6 @@ class Memory:
                             self.tag_index[tag].remove(removed_event)
                             if not self.tag_index[tag]:
                                 del self.tag_index[tag]
-            if not self.events or event.importance < self.events[0].importance:
-                return
-            removed_event = heapq.heapreplace(self.events, event)
-
-            if event.tags:
-                for tag in event.tags:
-                    if tag not in self.tag_index:
-                        self.tag_index[tag] = set()
-                    self.tag_index[tag].add(event)
-
-            if removed_event.tags:
-                for tag in removed_event.tags:
-                    if tag in self.tag_index:
-                        self.tag_index[tag].remove(removed_event)
-                        if not self.tag_index[tag]:
-                            del self.tag_index[tag]
         else:
             heapq.heappush(self.events, heap_item)
             if event.tags:
