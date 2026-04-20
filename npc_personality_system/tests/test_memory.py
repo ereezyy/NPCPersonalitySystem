@@ -31,7 +31,7 @@ class TestMemory(unittest.TestCase):
         m.add_event("Event 4", importance=0.8, tags=["t4"])
 
         self.assertEqual(len(m.events), 3)
-        self.assertNotIn("Event 1", [e.description for e in m.events])
+        self.assertNotIn("Event 1", [item[2].description for item in m.events])
 
         # Check that it's removed from tag index
         self.assertEqual(len(m.recall("t1")), 0)
