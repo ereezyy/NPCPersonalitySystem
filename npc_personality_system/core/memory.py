@@ -3,11 +3,16 @@ import heapq
 import itertools
 
 class MemoryEvent:
+    __slots__ = ('description', 'importance', 'tags', 'timestamp')
+
     def __init__(self, description, importance=0.5, tags=None):
         self.description = description
         self.importance = importance # 0.0 to 1.0, determines how long it's remembered
         self.tags = tags or []
         self.timestamp = time.time()
+
+    def __lt__(self, other):
+        return self.importance < other.importance if self.importance != other.importance else self.timestamp < other.timestamp
 
 class Memory:
     """
@@ -44,6 +49,22 @@ class Memory:
                             self.tag_index[tag].remove(removed_event)
                             if not self.tag_index[tag]:
                                 del self.tag_index[tag]
+            if not self.events or event.importance < self.events[0].importance:
+                return
+            removed_event = heapq.heapreplace(self.events, event)
+
+            if event.tags:
+                for tag in event.tags:
+                    if tag not in self.tag_index:
+                        self.tag_index[tag] = set()
+                    self.tag_index[tag].add(event)
+
+            if removed_event.tags:
+                for tag in removed_event.tags:
+                    if tag in self.tag_index:
+                        self.tag_index[tag].remove(removed_event)
+                        if not self.tag_index[tag]:
+                            del self.tag_index[tag]
         else:
             heapq.heappush(self.events, heap_item)
             if event.tags:
