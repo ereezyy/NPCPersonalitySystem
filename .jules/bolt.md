@@ -25,3 +25,7 @@
 ## 2026-04-16 - Hot path function call and object overhead
 **Learning:** `__slots__` reduces memory usage and speeds up attribute access in Python classes, particularly useful for high-volume objects like `MemoryEvent`. Also, Python built-in function calls like `min()` and `max()` have a large overhead compared to basic `if/elif` statements. In hot paths, even standard optimizations like `heapq.heappushpop()` can be bypassed with an early return if we know the new item won't be kept in the priority queue.
 **Action:** Use `__slots__` on data container classes that are instantiated frequently. Replace `min/max` with `if-elif-else` inside heavily used loops or update paths. Short-circuit standard library operations when trivial checks (like comparing against the minimum element of a min-heap) can prevent unnecessary execution.
+
+## 2024-05-19 - Skipping redundant dictionary updates in hot paths (addendum for relationships)
+**Learning:** Similar to emotion state, relationship affinity tracking often hits bound limits (+1.0/-1.0) or receives redundant updates (0 delta) during frequent game loops. Skipping dictionary writes and early exiting when the state has not actually changed drastically reduces overhead and speeds up the hot path.
+**Action:** When creating state management classes that process deltas (like affinities or statuses), immediately check for zero deltas and skip processing. Calculate the new clamped value, and if it matches the current value, return early before updating the underlying dictionary to save `__setitem__` overhead.
