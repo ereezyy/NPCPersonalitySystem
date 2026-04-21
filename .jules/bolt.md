@@ -32,3 +32,7 @@
 ## 2024-05-19 - Skipping redundant dictionary updates in hot paths (addendum for relationships)
 **Learning:** Similar to emotion state, relationship affinity tracking often hits bound limits (+1.0/-1.0) or receives redundant updates (0 delta) during frequent game loops. Skipping dictionary writes and early exiting when the state has not actually changed drastically reduces overhead and speeds up the hot path.
 **Action:** When creating state management classes that process deltas (like affinities or statuses), immediately check for zero deltas and skip processing. Calculate the new clamped value, and if it matches the current value, return early before updating the underlying dictionary to save `__setitem__` overhead.
+
+## 2026-04-20 - Indexing Error when Checking Min-Heap of Tuples
+**Learning:** When storing objects in a `heapq` wrapped inside tuples for performance (e.g., `(priority, tiebreaker, object)`), accessing the minimum element via `heap[0]` returns the tuple, not the object. Attempting to directly access object attributes like `heap[0].importance` will cause an `AttributeError`.
+**Action:** Always remember to access the first element of the tuple for comparisons when using the tuple-wrapping pattern with `heapq` (e.g., use `new_item[0] < heap[0][0]`), and do this early to avoid expensive push/pop operations when discarding elements lower than the heap minimum.
