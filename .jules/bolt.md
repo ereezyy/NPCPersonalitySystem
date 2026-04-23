@@ -40,3 +40,7 @@
 ## 2026-04-22 - Early Exit Before Object Allocation
 **Learning:** Instantiating objects (like `MemoryEvent`) inside hot paths can introduce significant overhead, especially if the object's constructor performs non-trivial operations (like calling `time.time()`). When elements are frequently rejected from a capacity-constrained collection (like a full priority queue dropping low-importance items), checking the rejection criteria *before* allocating the new object provides a large performance boost.
 **Action:** When implementing `add` or `insert` methods for size-limited collections, check the fast-path rejection conditions (e.g., `importance < current_min_importance`) as early as possible, bypassing any object creation, variable assignment, or tuple construction if the item is guaranteed to be discarded.
+
+## 2026-05-18 - Removing Redundant Tie-breakers in Heap Collections
+**Learning:** When using Python's `heapq` module by wrapping elements inside tuples like `(priority, tiebreaker, object)`, the tie-breaker fully prevents the underlying `object`'s comparison methods from ever being invoked, making custom `__lt__` methods on the objects effectively dead code.
+**Action:** When a deterministic tiebreaker like `itertools.count()` is provided in the tuple, do not implement `__lt__` on the class being stored. Additionally, avoid attaching unnecessary properties like `time.time()` to the object specifically to support the redundant `__lt__` method, as the object initialization overhead is significant.
