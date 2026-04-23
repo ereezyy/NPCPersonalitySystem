@@ -36,3 +36,7 @@
 ## 2026-04-20 - Indexing Error when Checking Min-Heap of Tuples
 **Learning:** When storing objects in a `heapq` wrapped inside tuples for performance (e.g., `(priority, tiebreaker, object)`), accessing the minimum element via `heap[0]` returns the tuple, not the object. Attempting to directly access object attributes like `heap[0].importance` will cause an `AttributeError`.
 **Action:** Always remember to access the first element of the tuple for comparisons when using the tuple-wrapping pattern with `heapq` (e.g., use `new_item[0] < heap[0][0]`), and do this early to avoid expensive push/pop operations when discarding elements lower than the heap minimum.
+
+## 2026-04-22 - Early Exit Before Object Allocation
+**Learning:** Instantiating objects (like `MemoryEvent`) inside hot paths can introduce significant overhead, especially if the object's constructor performs non-trivial operations (like calling `time.time()`). When elements are frequently rejected from a capacity-constrained collection (like a full priority queue dropping low-importance items), checking the rejection criteria *before* allocating the new object provides a large performance boost.
+**Action:** When implementing `add` or `insert` methods for size-limited collections, check the fast-path rejection conditions (e.g., `importance < current_min_importance`) as early as possible, bypassing any object creation, variable assignment, or tuple construction if the item is guaranteed to be discarded.
