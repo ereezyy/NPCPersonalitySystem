@@ -1,6 +1,7 @@
 import time
 import heapq
 import itertools
+from collections import defaultdict
 
 class MemoryEvent:
     __slots__ = ('description', 'importance', 'tags', 'timestamp')
@@ -21,7 +22,7 @@ class Memory:
     def __init__(self, capacity=100):
         self.events = []
         self.capacity = capacity
-        self.tag_index = {}
+        self.tag_index = defaultdict(set)
         self._counter = itertools.count()
 
     def add_event(self, description, importance=0.5, tags=None):
@@ -43,23 +44,20 @@ class Memory:
                 # Add the new event's tags to index
                 if event.tags:
                     for tag in event.tags:
-                        if tag not in self.tag_index:
-                            self.tag_index[tag] = set()
                         self.tag_index[tag].add(event)
 
                 # Remove the old event's tags from index
                 if removed_event.tags:
                     for tag in removed_event.tags:
-                        if tag in self.tag_index:
-                            self.tag_index[tag].remove(removed_event)
-                            if not self.tag_index[tag]:
+                        tag_set = self.tag_index.get(tag)
+                        if tag_set is not None:
+                            tag_set.discard(removed_event)
+                            if not tag_set:
                                 del self.tag_index[tag]
         else:
             heapq.heappush(self.events, heap_item)
             if event.tags:
                 for tag in event.tags:
-                    if tag not in self.tag_index:
-                        self.tag_index[tag] = set()
                     self.tag_index[tag].add(event)
 
     def recall(self, tag=None):
