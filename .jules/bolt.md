@@ -40,3 +40,7 @@
 ## 2026-04-22 - Early Exit Before Object Allocation
 **Learning:** Instantiating objects (like `MemoryEvent`) inside hot paths can introduce significant overhead, especially if the object's constructor performs non-trivial operations (like calling `time.time()`). When elements are frequently rejected from a capacity-constrained collection (like a full priority queue dropping low-importance items), checking the rejection criteria *before* allocating the new object provides a large performance boost.
 **Action:** When implementing `add` or `insert` methods for size-limited collections, check the fast-path rejection conditions (e.g., `importance < current_min_importance`) as early as possible, bypassing any object creation, variable assignment, or tuple construction if the item is guaranteed to be discarded.
+
+## 2026-04-26 - Dictionary Lookup Overhead
+**Learning:** Checking for keys in a dictionary multiple times using the `in` or `not in` operators, followed by attribute access, can cause significant overhead inside hot paths where lookups are frequent. Redundant `__getattr__` queries via dot notation (e.g., `self.tag_index`) on classes are also slow compared to local variable assignments.
+**Action:** Use `.get(key)` on dictionaries to retrieve and conditionally update values in one step, caching class attributes like dictionaries or arrays into local variables before heavily entering loops or frequently executing branches.
