@@ -1,7 +1,6 @@
 import time
 import heapq
 import itertools
-from collections import defaultdict
 
 class MemoryEvent:
     __slots__ = ('description', 'importance', 'tags', 'timestamp')
@@ -22,47 +21,46 @@ class Memory:
     def __init__(self, capacity=100):
         self.events = []
         self.capacity = capacity
-        self.tag_index = defaultdict(set)
+        self.tag_index = {}
         self._counter = itertools.count()
 
     def add_event(self, description, importance=0.5, tags=None):
-        events = self.events
-        if len(events) >= self.capacity:
-            if not events or importance < events[0][0]:
+        if len(self.events) >= self.capacity:
+            if not self.events or importance < self.events[0][0]:
                 return
 
         event = MemoryEvent(description, importance, tags)
         heap_item = (importance, next(self._counter), event)
 
-        if len(events) >= self.capacity:
+        if len(self.events) >= self.capacity:
 
             # If at capacity, use heappushpop to atomically add new and remove lowest priority.
             # This is more efficient and avoids tag indexing if the new event is the one removed.
-            removed_item = heapq.heappushpop(events, heap_item)
+            removed_item = heapq.heappushpop(self.events, heap_item)
             removed_event = removed_item[2]
 
             if removed_event is not event:
                 # Add the new event's tags to index
-                if tags:
-                    tag_index = self.tag_index
-                    for tag in tags:
-                        tag_index[tag].add(event)
+                if event.tags:
+                    for tag in event.tags:
+                        if tag not in self.tag_index:
+                            self.tag_index[tag] = set()
+                        self.tag_index[tag].add(event)
 
                 # Remove the old event's tags from index
-                removed_tags = removed_event.tags
-                if removed_tags:
-                    tag_index = self.tag_index
-                    for tag in removed_tags:
-                        tag_set = tag_index[tag]
-                        tag_set.remove(removed_event)
-                        if not tag_set:
-                            del tag_index[tag]
+                if removed_event.tags:
+                    for tag in removed_event.tags:
+                        if tag in self.tag_index:
+                            self.tag_index[tag].remove(removed_event)
+                            if not self.tag_index[tag]:
+                                del self.tag_index[tag]
         else:
-            heapq.heappush(events, heap_item)
-            if tags:
-                tag_index = self.tag_index
-                for tag in tags:
-                    tag_index[tag].add(event)
+            heapq.heappush(self.events, heap_item)
+            if event.tags:
+                for tag in event.tags:
+                    if tag not in self.tag_index:
+                        self.tag_index[tag] = set()
+                    self.tag_index[tag].add(event)
 
     def recall(self, tag=None):
         """Recall memories, optionally filtered by a tag."""

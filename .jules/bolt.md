@@ -40,7 +40,3 @@
 ## 2026-04-22 - Early Exit Before Object Allocation
 **Learning:** Instantiating objects (like `MemoryEvent`) inside hot paths can introduce significant overhead, especially if the object's constructor performs non-trivial operations (like calling `time.time()`). When elements are frequently rejected from a capacity-constrained collection (like a full priority queue dropping low-importance items), checking the rejection criteria *before* allocating the new object provides a large performance boost.
 **Action:** When implementing `add` or `insert` methods for size-limited collections, check the fast-path rejection conditions (e.g., `importance < current_min_importance`) as early as possible, bypassing any object creation, variable assignment, or tuple construction if the item is guaranteed to be discarded.
-
-## 2026-04-29 - [Optimizing dictionary access in hot loops]
-**Learning:** Checking for key existence with `if key not in dict:` in a hot loop (like `Memory.add_event` processing tags) can cause significant overhead. In the `Memory` system where tag lookups are extremely frequent, utilizing `collections.defaultdict(set)` and avoiding explicit dictionary key existence checks improves performance notably.
-**Action:** Always prefer `collections.defaultdict` over manual existence checks for grouping or categorizing data in hot loops where keys might be missing. Additionally, localizing attribute accesses (like caching `self.tag_index` to `tag_index`) within tight loops reduces bytecode instructions and increases execution speed.
