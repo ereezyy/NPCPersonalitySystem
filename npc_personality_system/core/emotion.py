@@ -2,6 +2,8 @@ class EmotionState:
     """
     Represents the current emotional state of an NPC.
     """
+    __slots__ = ('emotions', '_dominant', '_dominant_val')
+
     def __init__(self):
         # Basic emotions mapped to an intensity level from 0.0 to 1.0
         self.emotions = {
@@ -22,8 +24,9 @@ class EmotionState:
         if not delta:
             return
 
+        emotions = self.emotions
         try:
-            curr_val = self.emotions[emotion_name]
+            curr_val = emotions[emotion_name]
         except KeyError:
             raise ValueError(f"Unknown emotion: {emotion_name}")
 
@@ -36,20 +39,24 @@ class EmotionState:
         if new_val == curr_val:
             return
 
-        self.emotions[emotion_name] = new_val
+        emotions[emotion_name] = new_val
 
         # Cache the dominant emotion
-        if new_val > self._dominant_val:
+        dominant_val = self._dominant_val
+        if new_val > dominant_val:
             self._dominant = emotion_name
             self._dominant_val = new_val
-        elif emotion_name == self._dominant and new_val < self._dominant_val:
+        elif emotion_name == self._dominant and new_val < dominant_val:
             # The dominant emotion decreased, recalculate
             best = "neutral"
             best_val = 0.0
-            for k, v in self.emotions.items():
+
+            for k in emotions:
+                v = emotions[k]
                 if v > best_val:
                     best = k
                     best_val = v
+
             self._dominant = best
             self._dominant_val = best_val
 
