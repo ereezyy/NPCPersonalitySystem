@@ -4,6 +4,7 @@ from .memory import Memory
 from .relationship import Relationship
 
 class NPC:
+    __slots__ = ('name', 'personality', 'emotions', 'memory', 'relationships')
     """
     Main class representing a Non-Player Character.
     Integrates Personality, EmotionState, Memory, and Relationships.

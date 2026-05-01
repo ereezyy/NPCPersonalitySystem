@@ -44,3 +44,7 @@
 ## 2026-04-29 - [Optimizing dictionary access in hot loops]
 **Learning:** Checking for key existence with `if key not in dict:` in a hot loop (like `Memory.add_event` processing tags) can cause significant overhead. In the `Memory` system where tag lookups are extremely frequent, utilizing `collections.defaultdict(set)` and avoiding explicit dictionary key existence checks improves performance notably.
 **Action:** Always prefer `collections.defaultdict` over manual existence checks for grouping or categorizing data in hot loops where keys might be missing. Additionally, localizing attribute accesses (like caching `self.tag_index` to `tag_index`) within tight loops reduces bytecode instructions and increases execution speed.
+
+## 2026-05-01 - Optimizing Object Instantiation with slots
+**Learning:** Frequent object instantiation and memory usage overhead in data-heavy or frequently updated classes (like `NPC`, `Personality`, `EmotionState`, `Memory`, `Relationship`) impacts overall system performance. Python dictionaries associated with each object instance consume significant memory and slow down attribute access slightly.
+**Action:** Always add `__slots__` to fundamental state container classes that are instantiated often or managed in large numbers to decrease memory footprint and slightly improve attribute access speed.

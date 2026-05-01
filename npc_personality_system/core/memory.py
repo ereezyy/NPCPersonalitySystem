@@ -16,6 +16,7 @@ class MemoryEvent:
         return self.importance < other.importance if self.importance != other.importance else self.timestamp < other.timestamp
 
 class Memory:
+    __slots__ = ('events', 'capacity', 'tag_index', '_counter')
     """
     Handles storing and retrieving memories for an NPC.
     """

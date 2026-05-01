@@ -1,4 +1,5 @@
 class EmotionState:
+    __slots__ = ('emotions', '_dominant', '_dominant_val')
     """
     Represents the current emotional state of an NPC.
     """

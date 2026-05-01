@@ -1,4 +1,5 @@
 class Relationship:
+    __slots__ = ('affinities',)
     """
     Tracks the NPC's affinity and history with other entities (NPCs, Player).
     """

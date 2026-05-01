@@ -1,4 +1,5 @@
 class Personality:
+    __slots__ = ('openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism')
     """
     Represents the core personality traits of an NPC using the OCEAN model.
     Traits are typically mapped from 0.0 to 1.0.
