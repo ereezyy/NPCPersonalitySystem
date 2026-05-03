@@ -1,4 +1,5 @@
 import time
+_time = time.time
 import heapq
 import itertools
 from collections import defaultdict
@@ -9,8 +10,8 @@ class MemoryEvent:
     def __init__(self, description, importance=0.5, tags=None):
         self.description = description
         self.importance = importance # 0.0 to 1.0, determines how long it's remembered
-        self.tags = tags or []
-        self.timestamp = time.time()
+        self.tags = tags or ()
+        self.timestamp = _time()
 
     def __lt__(self, other):
         return self.importance < other.importance if self.importance != other.importance else self.timestamp < other.timestamp

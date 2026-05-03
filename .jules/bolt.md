@@ -44,3 +44,7 @@
 ## 2026-04-29 - [Optimizing dictionary access in hot loops]
 **Learning:** Checking for key existence with `if key not in dict:` in a hot loop (like `Memory.add_event` processing tags) can cause significant overhead. In the `Memory` system where tag lookups are extremely frequent, utilizing `collections.defaultdict(set)` and avoiding explicit dictionary key existence checks improves performance notably.
 **Action:** Always prefer `collections.defaultdict` over manual existence checks for grouping or categorizing data in hot loops where keys might be missing. Additionally, localizing attribute accesses (like caching `self.tag_index` to `tag_index`) within tight loops reduces bytecode instructions and increases execution speed.
+
+## 2026-05-03 - List allocations and global lookups in hot paths
+**Learning:** In hot paths (like passing arguments to a frequently called function `add_event`), instantiating empty lists `[]` or passing list literals `["tag"]` causes measurable overhead due to object allocation. Additionally, frequently accessed global functions like `time.time()` have lookup overhead that compounds in tight loops.
+**Action:** Replace list literals with immutable tuple literals (e.g., `("tag",)`) for read-only parameters and default values to completely avoid allocation overhead. Cache frequently used global functions locally (e.g., `_time = time.time`) at the module level when called millions of times per execution.
