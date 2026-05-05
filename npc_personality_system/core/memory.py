@@ -19,6 +19,8 @@ class Memory:
     """
     Handles storing and retrieving memories for an NPC.
     """
+    __slots__ = ('events', 'capacity', 'tag_index', '_counter')
+
     def __init__(self, capacity=100):
         self.events = []
         self.capacity = capacity

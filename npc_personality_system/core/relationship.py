@@ -2,6 +2,8 @@ class Relationship:
     """
     Tracks the NPC's affinity and history with other entities (NPCs, Player).
     """
+    __slots__ = ('affinities',)
+
     def __init__(self):
         # Maps entity_id to affinity score (-1.0 to 1.0)
         self.affinities = {}

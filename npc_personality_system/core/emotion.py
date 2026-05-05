@@ -2,6 +2,8 @@ class EmotionState:
     """
     Represents the current emotional state of an NPC.
     """
+    __slots__ = ('emotions', '_dominant', '_dominant_val')
+
     def __init__(self):
         # Basic emotions mapped to an intensity level from 0.0 to 1.0
         self.emotions = {

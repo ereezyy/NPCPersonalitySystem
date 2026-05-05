@@ -8,6 +8,8 @@ class NPC:
     Main class representing a Non-Player Character.
     Integrates Personality, EmotionState, Memory, and Relationships.
     """
+    __slots__ = ('name', 'personality', 'emotions', 'memory', 'relationships')
+
     def __init__(self, name, personality=None):
         self.name = name
         self.personality = personality or Personality()
