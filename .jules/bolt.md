@@ -48,3 +48,7 @@
 ## 2024-05-24 - Optimizing Memory and Initialization of Core Classes with __slots__
 **Learning:** Using `__slots__` reduces memory footprint and speeds up attribute access and object instantiation. This is particularly valuable for core composition classes (like `NPC`, `Personality`, `EmotionState`, `Memory`, `Relationship`) that are instantiated frequently and in large quantities.
 **Action:** Consistently apply `__slots__` to fundamental state-holding data classes that are generated in volume to save on object overhead and memory costs without altering any external behaviour.
+
+## 2026-04-29 - Pre-allocation Capacity Check Bypassing String Formatting
+**Learning:** Checking for rejection criteria (like memory capacity) directly within the constrained collection's `add` method avoids internal collection overhead, but the caller still pays the price of setting up the call. In the `NPC` class, passing formatted strings (e.g., `f"Was greeted by {entity_id}"`) and building tags lists to `Memory.add_event` causes significant overhead because Python executes the f-string and list allocation *before* calling the function, only for `add_event` to immediately discard the event if capacity limits dictate.
+**Action:** Expose a fast capacity/importance check (e.g., `will_remember()`) from the collection and use it in the hot path *before* constructing any complex arguments. Wrap expensive string formatting and temporary list/tuple allocations inside the `if` check.

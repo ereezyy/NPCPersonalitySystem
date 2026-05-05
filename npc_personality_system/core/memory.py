@@ -27,6 +27,11 @@ class Memory:
         self.tag_index = defaultdict(set)
         self._counter = itertools.count()
 
+    def will_remember(self, importance):
+        """Quick check if an event with this importance would be kept."""
+        events = self.events
+        return len(events) < self.capacity or not events or importance >= events[0][0]
+
     def add_event(self, description, importance=0.5, tags=None):
         events = self.events
         if len(events) >= self.capacity:
