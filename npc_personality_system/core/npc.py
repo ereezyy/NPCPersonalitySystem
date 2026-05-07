@@ -25,44 +25,52 @@ class NPC:
         """
         # A simple interaction logic for demonstration purposes
         reaction = "neutral"
-        affinity = self.relationships.get_affinity(entity_id)
+
+        # Cache local variables for hot path optimization
+        relationships = self.relationships
+        emotions = self.emotions
+        memory = self.memory
+
+        affinity = relationships.get_affinity(entity_id)
 
         if action == "greet":
             if affinity > 0.3:
                 reaction = "friendly"
-                self.emotions.update_emotion("joy", 0.1)
+                emotions.update_emotion("joy", 0.1)
             elif affinity < -0.3:
                 reaction = "hostile"
-                self.emotions.update_emotion("anger", 0.1)
+                emotions.update_emotion("anger", 0.1)
             else:
                 if self.personality.extraversion > 0.6:
                     reaction = "warm"
-                    self.emotions.update_emotion("joy", 0.05)
+                    emotions.update_emotion("joy", 0.05)
                 else:
                     reaction = "reserved"
 
-            self.memory.add_event(f"Was greeted by {entity_id}", importance=0.1, tags=["interaction", entity_id])
+            memory.add_event(f"Was greeted by {entity_id}", importance=0.1, tags=("interaction", entity_id))
 
         elif action == "attack":
             reaction = "defensive"
-            self.relationships.update_affinity(entity_id, -0.5)
-            self.emotions.update_emotion("anger", 0.8)
-            self.emotions.update_emotion("fear", 0.5)
-            self.memory.add_event(f"Was attacked by {entity_id}", importance=0.9, tags=["combat", "negative", entity_id])
+            relationships.update_affinity(entity_id, -0.5)
+            affinity = relationships.get_affinity(entity_id)
+            emotions.update_emotion("anger", 0.8)
+            emotions.update_emotion("fear", 0.5)
+            memory.add_event(f"Was attacked by {entity_id}", importance=0.9, tags=("combat", "negative", entity_id))
 
         elif action == "gift":
             reaction = "grateful"
             affinity_increase = 0.2
             if self.personality.agreeableness < 0.3:
                 affinity_increase = 0.05 # Less agreeable NPCs are harder to please
-            self.relationships.update_affinity(entity_id, affinity_increase)
-            self.emotions.update_emotion("joy", 0.3)
-            self.memory.add_event(f"Received a gift from {entity_id}", importance=0.4, tags=["interaction", "positive", entity_id])
+            relationships.update_affinity(entity_id, affinity_increase)
+            affinity = relationships.get_affinity(entity_id)
+            emotions.update_emotion("joy", 0.3)
+            memory.add_event(f"Received a gift from {entity_id}", importance=0.4, tags=("interaction", "positive", entity_id))
 
         return {
             "reaction": reaction,
-            "dominant_emotion": self.emotions.get_dominant_emotion(),
-            "affinity": self.relationships.get_affinity(entity_id)
+            "dominant_emotion": emotions.get_dominant_emotion(),
+            "affinity": affinity
         }
 
     def __repr__(self):

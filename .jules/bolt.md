@@ -48,3 +48,7 @@
 ## 2024-05-24 - Optimizing Memory and Initialization of Core Classes with __slots__
 **Learning:** Using `__slots__` reduces memory footprint and speeds up attribute access and object instantiation. This is particularly valuable for core composition classes (like `NPC`, `Personality`, `EmotionState`, `Memory`, `Relationship`) that are instantiated frequently and in large quantities.
 **Action:** Consistently apply `__slots__` to fundamental state-holding data classes that are generated in volume to save on object overhead and memory costs without altering any external behaviour.
+
+## 2026-05-07 - Minimizing redundant lookups and allocations in hot paths
+**Learning:** Functions that get called many times like `NPC.interact` incur measurable overhead when repeatedly checking object properties (`self.relationships`, `self.emotions`) or doing redundant dictionary accesses (`self.relationships.get_affinity(entity_id)` multiple times in a function scope). In addition, allocating transient lists inline like `["tag", entity_id]` for events carries unnecessary allocation and GC costs over millions of calls compared to using immutable tuples.
+**Action:** Extract repetitive attribute accesses to local variable caches at the beginning of heavily called functions. Store updated state (like affinity after an event) in a local variable instead of querying the object again later in the method. Always use tuples over lists for static inline groupings unless mutation is strictly required.
