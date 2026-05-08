@@ -48,3 +48,7 @@
 ## 2024-05-24 - Optimizing Memory and Initialization of Core Classes with __slots__
 **Learning:** Using `__slots__` reduces memory footprint and speeds up attribute access and object instantiation. This is particularly valuable for core composition classes (like `NPC`, `Personality`, `EmotionState`, `Memory`, `Relationship`) that are instantiated frequently and in large quantities.
 **Action:** Consistently apply `__slots__` to fundamental state-holding data classes that are generated in volume to save on object overhead and memory costs without altering any external behaviour.
+
+## 2026-05-08 - Optimizing list allocation in hot paths
+**Learning:** Allocating mutable lists dynamically inside hot loops (e.g., as arguments for function calls like `tags=["interaction", entity_id]`) incurs significant object creation overhead in Python compared to allocating immutable tuples. Profiling revealed that converting these list literals to tuple literals almost halved the execution time of the method.
+**Action:** Always prefer immutable tuples `(item1, item2)` over mutable lists `[item1, item2]` when passing collections of static or dynamically generated data as function arguments or storing intermediate state in hot paths, provided the sequence does not need to be mutated afterwards.

@@ -41,14 +41,14 @@ class NPC:
                 else:
                     reaction = "reserved"
 
-            self.memory.add_event(f"Was greeted by {entity_id}", importance=0.1, tags=["interaction", entity_id])
+            self.memory.add_event(f"Was greeted by {entity_id}", importance=0.1, tags=("interaction", entity_id))
 
         elif action == "attack":
             reaction = "defensive"
             self.relationships.update_affinity(entity_id, -0.5)
             self.emotions.update_emotion("anger", 0.8)
             self.emotions.update_emotion("fear", 0.5)
-            self.memory.add_event(f"Was attacked by {entity_id}", importance=0.9, tags=["combat", "negative", entity_id])
+            self.memory.add_event(f"Was attacked by {entity_id}", importance=0.9, tags=("combat", "negative", entity_id))
 
         elif action == "gift":
             reaction = "grateful"
@@ -57,7 +57,7 @@ class NPC:
                 affinity_increase = 0.05 # Less agreeable NPCs are harder to please
             self.relationships.update_affinity(entity_id, affinity_increase)
             self.emotions.update_emotion("joy", 0.3)
-            self.memory.add_event(f"Received a gift from {entity_id}", importance=0.4, tags=["interaction", "positive", entity_id])
+            self.memory.add_event(f"Received a gift from {entity_id}", importance=0.4, tags=("interaction", "positive", entity_id))
 
         return {
             "reaction": reaction,
