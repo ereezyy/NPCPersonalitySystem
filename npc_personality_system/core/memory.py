@@ -29,14 +29,15 @@ class Memory:
 
     def add_event(self, description, importance=0.5, tags=None):
         events = self.events
-        if len(events) >= self.capacity:
+        is_at_capacity = len(events) >= self.capacity
+        if is_at_capacity:
             if not events or importance < events[0][0]:
                 return
 
         event = MemoryEvent(description, importance, tags)
         heap_item = (importance, next(self._counter), event)
 
-        if len(events) >= self.capacity:
+        if is_at_capacity:
 
             # If at capacity, use heappushpop to atomically add new and remove lowest priority.
             # This is more efficient and avoids tag indexing if the new event is the one removed.

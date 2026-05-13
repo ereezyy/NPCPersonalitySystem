@@ -48,3 +48,7 @@
 ## 2024-05-24 - Optimizing Memory and Initialization of Core Classes with __slots__
 **Learning:** Using `__slots__` reduces memory footprint and speeds up attribute access and object instantiation. This is particularly valuable for core composition classes (like `NPC`, `Personality`, `EmotionState`, `Memory`, `Relationship`) that are instantiated frequently and in large quantities.
 **Action:** Consistently apply `__slots__` to fundamental state-holding data classes that are generated in volume to save on object overhead and memory costs without altering any external behaviour.
+
+## 2026-05-13 - [Caching length calls in fast path]
+**Learning:** `len()` inside a heavily called method like `Memory.add_event` adds overhead when used multiple times. Storing the boolean result of a capacity check instead of recalculating length speeds up the hot path.
+**Action:** Calculate and cache length checks (e.g. `is_at_cap = len(items) >= capacity`) once at the start of a function if the length is evaluated multiple times.
