@@ -48,3 +48,7 @@
 ## 2024-05-24 - Optimizing Memory and Initialization of Core Classes with __slots__
 **Learning:** Using `__slots__` reduces memory footprint and speeds up attribute access and object instantiation. This is particularly valuable for core composition classes (like `NPC`, `Personality`, `EmotionState`, `Memory`, `Relationship`) that are instantiated frequently and in large quantities.
 **Action:** Consistently apply `__slots__` to fundamental state-holding data classes that are generated in volume to save on object overhead and memory costs without altering any external behaviour.
+
+## 2024-05-26 - Early boundary checks in state updates
+**Learning:** In state management classes that process deltas (like affinities), early checking boundary conditions (e.g., `delta > 0` and `val >= max_val`) immediately after fetching the current value prevents unnecessary arithmetic, conditional clamping logic, and secondary equality checks.
+**Action:** When updating bounded values in hot paths, implement early exit conditions checking delta direction against boundary limits immediately after retrieving the current state to maximize skipped instructions on redundant updates.

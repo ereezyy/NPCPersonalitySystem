@@ -12,7 +12,14 @@ class Relationship:
         if not delta:
             return
 
-        curr_val = self.affinities.get(entity_id, 0.0)
+        affinities = self.affinities
+        curr_val = affinities.get(entity_id, 0.0)
+
+        if delta > 0.0 and curr_val >= 1.0:
+            return
+        if delta < 0.0 and curr_val <= -1.0:
+            return
+
         new_val = curr_val + delta
 
         if new_val > 1.0:
@@ -23,7 +30,7 @@ class Relationship:
         if new_val == curr_val:
             return
 
-        self.affinities[entity_id] = new_val
+        affinities[entity_id] = new_val
 
     def get_affinity(self, entity_id):
         return self.affinities.get(entity_id, 0.0)
