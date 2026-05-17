@@ -52,3 +52,7 @@
 ## 2024-05-26 - Early Exit on Delta Direction against Boundaries
 **Learning:** Even with clamping and 'new_val == curr_val' checks, performing arithmetic and clamp operations on states that are already at their boundary limits introduces measurable overhead in hot paths. Checking the delta direction against the boundary immediately after state retrieval bypasses this.
 **Action:** When updating bounded values in hot paths (e.g., processing deltas in state management), implement early exit conditions by checking the delta direction against boundary limits immediately after retrieving the current state to skip redundant arithmetic and clamping logic.
+
+## 2024-05-31 - Early Exit Before Object Allocation in `add_event`
+**Learning:** Instantiating objects (`MemoryEvent`) inside hot paths can introduce overhead. Checking rejection criteria (like importance threshold when memory is at capacity) *before* object allocation provides a huge performance boost when adding many low-importance events. Additionally, when it is guaranteed that the new element is greater than the heap's minimum, `heapq.heapreplace` is faster than `heapq.heappushpop`. We can skip checking `not events` when `len(events) >= self.capacity` because `capacity` is > 0.
+**Action:** Implement an early check `if len(events) >= self.capacity: if importance < events[0][0]: return` to skip object creation. Use `heapreplace` when adding an item and removing the lowest priority item since we already confirmed the new item is kept.

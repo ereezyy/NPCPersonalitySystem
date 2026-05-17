@@ -29,37 +29,32 @@ class Memory:
 
     def add_event(self, description, importance=0.5, tags=None):
         events = self.events
+
+        # Early exit fast path
         if len(events) >= self.capacity:
-            if not events or importance < events[0][0]:
+            if importance < events[0][0]:
                 return
 
-        event = MemoryEvent(description, importance, tags)
-        heap_item = (importance, next(self._counter), event)
+            event = MemoryEvent(description, importance, tags)
+            heap_item = (importance, next(self._counter), event)
+            removed_event = heapq.heapreplace(events, heap_item)[2]
 
-        if len(events) >= self.capacity:
+            if tags:
+                tag_index = self.tag_index
+                for tag in tags:
+                    tag_index[tag].add(event)
 
-            # If at capacity, use heappushpop to atomically add new and remove lowest priority.
-            # This is more efficient and avoids tag indexing if the new event is the one removed.
-            removed_item = heapq.heappushpop(events, heap_item)
-            removed_event = removed_item[2]
-
-            if removed_event is not event:
-                # Add the new event's tags to index
-                if tags:
-                    tag_index = self.tag_index
-                    for tag in tags:
-                        tag_index[tag].add(event)
-
-                # Remove the old event's tags from index
-                removed_tags = removed_event.tags
-                if removed_tags:
-                    tag_index = self.tag_index
-                    for tag in removed_tags:
-                        tag_set = tag_index[tag]
-                        tag_set.remove(removed_event)
-                        if not tag_set:
-                            del tag_index[tag]
+            removed_tags = removed_event.tags
+            if removed_tags:
+                tag_index = self.tag_index
+                for tag in removed_tags:
+                    tag_set = tag_index[tag]
+                    tag_set.remove(removed_event)
+                    if not tag_set:
+                        del tag_index[tag]
         else:
+            event = MemoryEvent(description, importance, tags)
+            heap_item = (importance, next(self._counter), event)
             heapq.heappush(events, heap_item)
             if tags:
                 tag_index = self.tag_index
