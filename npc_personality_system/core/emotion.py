@@ -29,6 +29,9 @@ class EmotionState:
         except KeyError:
             raise ValueError(f"Unknown emotion: {emotion_name}")
 
+        if (delta > 0 and curr_val >= 1.0) or (delta < 0 and curr_val <= 0.0):
+            return
+
         new_val = curr_val + delta
         if new_val > 1.0:
             new_val = 1.0

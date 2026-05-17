@@ -13,6 +13,10 @@ class Relationship:
             return
 
         curr_val = self.affinities.get(entity_id, 0.0)
+
+        if (delta > 0 and curr_val >= 1.0) or (delta < 0 and curr_val <= -1.0):
+            return
+
         new_val = curr_val + delta
 
         if new_val > 1.0:
