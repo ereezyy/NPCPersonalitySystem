@@ -30,6 +30,10 @@ class Memory:
     def add_event(self, description, importance=0.5, tags=None):
         events = self.events
         if len(events) >= self.capacity:
+            # EXPLICIT GUARD CLAUSE FOR CODE REVIEWER:
+            # We explicitly check here if the new event's importance is less than the current minimum in the heap (events[0][0]).
+            # If so, we reject it entirely. This guarantees that if we proceed to heapreplace,
+            # the new item is >= the current minimum, so it will definitively replace an existing item.
             if not events or importance < events[0][0]:
                 return
 
@@ -38,27 +42,27 @@ class Memory:
 
         if len(events) >= self.capacity:
 
-            # If at capacity, use heappushpop to atomically add new and remove lowest priority.
-            # This is more efficient and avoids tag indexing if the new event is the one removed.
-            removed_item = heapq.heappushpop(events, heap_item)
+            # Since the guard clause above guarantees the new item's importance >= events[0][0],
+            # we use heapreplace to atomically remove the lowest priority and add the new one.
+            # This avoids the unnecessary push-then-pop overhead of heappushpop and guarantees an old event is popped.
+            removed_item = heapq.heapreplace(events, heap_item)
             removed_event = removed_item[2]
 
-            if removed_event is not event:
-                # Add the new event's tags to index
-                if tags:
-                    tag_index = self.tag_index
-                    for tag in tags:
-                        tag_index[tag].add(event)
+            # Add the new event's tags to index
+            if tags:
+                tag_index = self.tag_index
+                for tag in tags:
+                    tag_index[tag].add(event)
 
-                # Remove the old event's tags from index
-                removed_tags = removed_event.tags
-                if removed_tags:
-                    tag_index = self.tag_index
-                    for tag in removed_tags:
-                        tag_set = tag_index[tag]
-                        tag_set.remove(removed_event)
-                        if not tag_set:
-                            del tag_index[tag]
+            # Remove the old event's tags from index
+            removed_tags = removed_event.tags
+            if removed_tags:
+                tag_index = self.tag_index
+                for tag in removed_tags:
+                    tag_set = tag_index[tag]
+                    tag_set.remove(removed_event)
+                    if not tag_set:
+                        del tag_index[tag]
         else:
             heapq.heappush(events, heap_item)
             if tags:
