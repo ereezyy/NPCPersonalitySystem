@@ -52,3 +52,7 @@
 ## 2024-05-26 - Early Exit on Delta Direction against Boundaries
 **Learning:** Even with clamping and 'new_val == curr_val' checks, performing arithmetic and clamp operations on states that are already at their boundary limits introduces measurable overhead in hot paths. Checking the delta direction against the boundary immediately after state retrieval bypasses this.
 **Action:** When updating bounded values in hot paths (e.g., processing deltas in state management), implement early exit conditions by checking the delta direction against boundary limits immediately after retrieving the current state to skip redundant arithmetic and clamping logic.
+
+## 2024-05-27 - Using heapreplace for guaranteed replacements
+**Learning:** When managing a capacity-constrained min-heap where we already check if the new item's priority is greater than the heap's minimum element before insertion, `heapq.heappushpop` performs redundant work. `heapq.heapreplace` is more efficient because it pops the smallest element first and then pushes the new one, avoiding the push-then-pop overhead and the need to check if the newly added item was the one ejected.
+**Action:** Use `heapq.heapreplace` instead of `heapq.heappushpop` in fixed-size priority queues when the new item is guaranteed to replace an existing item. Remove any subsequent checks verifying if the newly added item was the one popped, as `heapreplace` never returns the newly pushed item.
