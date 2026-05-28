@@ -56,3 +56,6 @@
 ## 2024-05-27 - heapreplace over heappushpop for fixed-size heaps
 **Learning:** When managing a fixed-size min-heap cache where we already know the new item is greater than or equal to the minimum element (and will thus definitely replace an existing item), `heapq.heapreplace()` is more efficient than `heapq.heappushpop()`. This is because `heapreplace` avoids the overhead of pushing the item and then immediately popping.
 **Action:** When maintaining a fixed-size min-heap and early-rejecting elements smaller than the heap minimum, use `heapq.heapreplace` instead of `heapq.heappushpop` to optimize the insertion path.
+## 2024-05-27 - Optimizing guaranteed heap replacements
+**Learning:** When managing a fixed-size min-heap and we have already verified via early-exit that the new item is `>=` the heap's minimum, `heapq.heappushpop()` introduces unnecessary overhead. `heapq.heapreplace()` is measurably faster because it unconditionally replaces the minimum element, avoiding the comparison of whether the newly pushed item should be immediately popped.
+**Action:** When it is guaranteed that a new item will replace an existing item in a fixed-size min-heap, use `heapq.heapreplace()` instead of `heapq.heappushpop()` and remove unnecessary conditional checks on the removed item.

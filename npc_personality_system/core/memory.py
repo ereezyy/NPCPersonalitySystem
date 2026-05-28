@@ -32,6 +32,10 @@ class Memory:
         if len(events) >= self.capacity:
             # EARLY REJECTION: If at capacity, ignore items with lower importance than the heap minimum.
             # This ensures any item passing this check is >= the current minimum, making heapreplace safe.
+            # EXPLANATORY COMMENT: This early exit check guarantees that if we proceed to
+            # modifying the heap, the new event's importance is strictly >= the minimum
+            # importance currently in the heap. Therefore, it is impossible for the new
+            # event to be the one that gets immediately popped, making heapreplace safe.
             if not events or importance < events[0][0]:
                 return
 
