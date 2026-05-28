@@ -30,6 +30,8 @@ class Memory:
     def add_event(self, description, importance=0.5, tags=None):
         events = self.events
         if len(events) >= self.capacity:
+            # EARLY REJECTION: If at capacity, ignore items with lower importance than the heap minimum.
+            # This ensures any item passing this check is >= the current minimum, making heapreplace safe.
             # EXPLANATORY COMMENT: This early exit check guarantees that if we proceed to
             # modifying the heap, the new event's importance is strictly >= the minimum
             # importance currently in the heap. Therefore, it is impossible for the new
@@ -41,6 +43,9 @@ class Memory:
         heap_item = (importance, next(self._counter), event)
 
         if len(events) >= self.capacity:
+
+            # If at capacity, use heapreplace to atomically add new and remove lowest priority.
+            # This is more efficient than heappushpop since we already verified the new item is larger than the min.
             removed_item = heapq.heapreplace(events, heap_item)
             removed_event = removed_item[2]
 
